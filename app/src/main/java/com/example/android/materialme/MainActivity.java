@@ -23,6 +23,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,11 +47,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        int gridColumnCount = getResources().getInteger(R.integer.grid_column_count);
+
         //Initialize the RecyclerView
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
         //Set the Layout Manager
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, gridColumnCount));
 
         //Initialize the ArrayLIst that will contain the data
         mSportsData = new ArrayList<>();
@@ -58,10 +62,16 @@ public class MainActivity extends AppCompatActivity {
         //Initialize the adapter and set it ot the RecyclerView
         mAdapter = new SportsAdapter(this, mSportsData);
         mRecyclerView.setAdapter(mAdapter);
+
+        int swipeDirs;
+        if(gridColumnCount > 1){
+            swipeDirs = 0;
+        } else {
+            swipeDirs = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        }
         ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper
                 .SimpleCallback(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT |
-                ItemTouchHelper.DOWN | ItemTouchHelper.UP, ItemTouchHelper.LEFT |
-                ItemTouchHelper.RIGHT) {
+                ItemTouchHelper.DOWN | ItemTouchHelper.UP, swipeDirs) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 int from = viewHolder.getAdapterPosition();
@@ -106,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         //Notify the adapter of the change
         mAdapter.notifyDataSetChanged();
     }
-    
+
     public void resetSports(View view) {
         initializeData();
     }
